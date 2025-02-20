@@ -1,115 +1,127 @@
 import json
 from elasticsearch import Elasticsearch, helpers
+from dotenv import load_dotenv
+import os
+import logging
+from datetime import datetime
+
+logging.basicConfig(level=logging.INFO)
+
+load_dotenv()
+
+elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 
 index_body = {
-        "settings": {
-            "analysis": {
-                "tokenizer": {
-                    "nori_user_dict_tokenizer": {
-                        "type": "nori_tokenizer",
-                        "decompound_mode": "mixed",
-                        "discard_punctuation": "false"
-                    }
+    "settings": {
+        "analysis": {
+            "tokenizer": {
+                "nori_user_dict_tokenizer": {
+                    "type": "nori_tokenizer",
+                    "decompound_mode": "mixed",
+                    "discard_punctuation": "false"
+                }
+            },
+            "filter": {
+                "korean_stop": {
+                    "type": "stop",
+                    "stopwords_path": "analysis/stopwords/korean_stopwords.txt"
                 },
-                "filter": {
-                    "korean_stop": {
-                        "type": "stop",
-                        "stopwords_path": "analysis/stopwords/korean_stopwords.txt"
-                    },
-                    "nori_filter": {
-                        "type": "nori_part_of_speech",
-                        "stoptags": [
-                            "E", "IC", "J", "MAG", "MAJ", "MM", "SP", "SSC", "SSO", "SC", "SE", "XPN", "XSA", "XSN",
-                            "XSV",
-                            "UNA", "NA", "VSV", "NP"
-                        ]
-                    },
-                    "ngram_filter": {
-                        "type": "ngram",
-                        "min_gram": 2,
-                        "max_gram": 3
-                    },
-                    "english_ngram_filter": {
-                        "type": "ngram",
-                        "min_gram": 2,
-                        "max_gram": 3
-                    },
+                "nori_filter": {
+                    "type": "nori_part_of_speech",
+                    "stoptags": [
+                        "E", "IC", "J", "MAG", "MAJ", "MM", "SP", "SSC", "SSO", "SC", "SE", "XPN", "XSA", "XSN",
+                        "XSV",
+                        "UNA", "NA", "VSV", "NP"
+                    ]
                 },
-                "analyzer": {
-                    "nori_analyzer_with_stopwords": {
-                        "type": "custom",
-                        "tokenizer": "nori_user_dict_tokenizer",
-                        "filter": ["nori_readingform", "korean_stop", "nori_filter", "trim"]
-                    },
-                    "nori_ngram_analyzer": {
-                        "type": "custom",
-                        "tokenizer": "nori_user_dict_tokenizer",
-                        "filter": ["nori_readingform", "ngram_filter", "trim"]
-                    },
-                    "english_ngram_analyzer": {
-                        "type": "custom",
-                        "tokenizer": "standard",
-                        "filter": ["lowercase", "english_ngram_filter", "trim"]
-                    }
+                "ngram_filter": {
+                    "type": "ngram",
+                    "min_gram": 2,
+                    "max_gram": 3
+                },
+                "english_ngram_filter": {
+                    "type": "ngram",
+                    "min_gram": 2,
+                    "max_gram": 3
+                },
+            },
+            "analyzer": {
+                "nori_analyzer_with_stopwords": {
+                    "type": "custom",
+                    "tokenizer": "nori_user_dict_tokenizer",
+                    "filter": ["nori_readingform", "korean_stop", "nori_filter", "trim"]
+                },
+                "nori_ngram_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "nori_user_dict_tokenizer",
+                    "filter": ["nori_readingform", "ngram_filter", "trim"]
+                },
+                "english_ngram_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "standard",
+                    "filter": ["lowercase", "english_ngram_filter", "trim"]
                 }
             }
-        },
-        "mappings": {
-            "properties": {
-                "addr1": {
-                    "type": "text",
-                    "analyzer": "nori_analyzer_with_stopwords",
-                    "fields": {
-                        "ngram": {
-                            "type": "text",
-                            "analyzer": "nori_ngram_analyzer"
-                        }
+        }
+    },
+    "mappings": {
+        "properties": {
+            "addr1": {
+                "type": "text",
+                "analyzer": "nori_analyzer_with_stopwords",
+                "fields": {
+                    "ngram": {
+                        "type": "text",
+                        "analyzer": "nori_ngram_analyzer"
                     }
-                },
-                "addr2": {
-                    "type": "text",
-                    "analyzer": "nori_analyzer_with_stopwords",
-                    "fields": {
-                        "ngram": {
-                            "type": "text",
-                            "analyzer": "nori_ngram_analyzer"
-                        }
+                }
+            },
+            "addr2": {
+                "type": "text",
+                "analyzer": "nori_analyzer_with_stopwords",
+                "fields": {
+                    "ngram": {
+                        "type": "text",
+                        "analyzer": "nori_ngram_analyzer"
                     }
-                },
-                "title": {
-                    "type": "text",
-                    "analyzer": "nori_analyzer_with_stopwords",
-                    "fields": {
-                        "ngram": {
-                            "type": "text",
-                            "analyzer": "nori_ngram_analyzer"
-                        }
+                }
+            },
+            "title": {
+                "type": "text",
+                "analyzer": "nori_analyzer_with_stopwords",
+                "fields": {
+                    "ngram": {
+                        "type": "text",
+                        "analyzer": "nori_ngram_analyzer"
                     }
-                },
-                "areacode": {"type": "keyword"},
-                "sigungucode": {"type": "keyword"},
-                "zipcode": {"type": "keyword"},
-                "contentid": {"type": "keyword"},
-                "contenttypeid": {"type": "keyword"},
-                "cat1": {"type": "keyword"},
-                "cat2": {"type": "keyword"},
-                "cat3": {"type": "keyword"},
-                "createdtime": {"type": "date", "format": "yyyy:MM:dd:HH:mm:ss"},
-                "modifiedtime": {"type": "date", "format": "yyyy:MM:dd:HH:mm:ss"},
-                "firstimage": {"type": "keyword"},
-                "firstimage2": {"type": "keyword"},
-                "booktour": {"type": "keyword"},
-                "cpyrhtDivCd": {"type": "keyword"},
-                "tel": {"type": "keyword"},
-                "mapx": {"type": "geo_point"},
-                "mapy": {"type": "geo_point"},
-                "mlevel": {"type": "float"}
-            }
+                }
+            },
+            "areacode": {"type": "keyword"},
+            "sigungucode": {"type": "keyword"},
+            "zipcode": {"type": "keyword"},
+            "contentid": {"type": "keyword"},
+            "contenttypeid": {"type": "keyword"},
+            "cat1": {"type": "keyword"},
+            "cat2": {"type": "keyword"},
+            "cat3": {"type": "keyword"},
+            "createdtime": {"type": "date", "format": "yyyyMMddHHmmss"},
+            "modifiedtime": {"type": "date", "format": "yyyyMMddHHmmss"},
+            "firstimage": {"type": "keyword"},
+            "firstimage2": {"type": "keyword"},
+            "booktour": {"type": "keyword"},
+            "cpyrhtDivCd": {"type": "keyword"},
+            "tel": {"type": "keyword"},
+            "mapx": {"type": "float"},
+            "mapy": {"type": "float"},
+            "mlevel": {"type": "float"}
         }
     }
+}
+
 
 def send_to_elastic():
-    es = Elasticsearch("http://localhost:9200")
+    es = Elasticsearch("http://localhost:9200",
+                       basic_auth=('elastic', elastic_pwd))
     index_name = "tour_spots"
     batch_size = 2000
     total_docs = 0
@@ -138,10 +150,17 @@ def send_to_elastic():
                 print(f'인덱싱 진행중... : {total_docs} / {len(tour_data)}')
 
                 if failed:
-                    print(f'오류 발생 : {failed}')
+                    print(f'오류 발생')
+                    print(failed)
 
             print('벌크 인덱싱 성공')
     except Exception as e:
-        print(f'오류 발생 : {e}')
+        if isinstance(e, helpers.BulkIndexError):
+            print('***실패 정보 출력***')
+            logging.error(e.errors)
+        else:
+            logging.error(f'오류 메시지 발생 : {e}')
+            logging.error(type(e))
+
 
 send_to_elastic()
