@@ -117,7 +117,8 @@ index_body = {
         }
     }
 }
-
+# 위의 createdtime, modifiedtime의 format은 넣을 데이터의 현재 포멧을 말하는 것이다.
+# 따라서 현재 JSON파일에 들어가있는 포멧과 일치시켜야 한다
 
 def send_to_elastic():
     es = Elasticsearch("http://localhost:9200",
