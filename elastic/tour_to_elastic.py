@@ -3,7 +3,6 @@ from elasticsearch import Elasticsearch, helpers
 from dotenv import load_dotenv
 import os
 import logging
-from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
