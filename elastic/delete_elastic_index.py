@@ -20,4 +20,3 @@ def delete_elasticsearch_index(index_name):
     except Exception as e:
         print(e)
 
-delete_elasticsearch_index("tour_spots")

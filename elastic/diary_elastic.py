@@ -108,7 +108,7 @@ diary_index_body = {
 
 def create_diary_index():
     try:
-        es = Elasticsearch("http://localhost:9200",basic_auth=('elastic', elastic_pwd))
+        es = Elasticsearch("http://localhost:9200", basic_auth=('elastic', elastic_pwd))
 
         if not es.indices.exists(index='diary'):
             es.indices.create(index='diary', body=diary_index_body)
@@ -119,4 +119,3 @@ def create_diary_index():
         logging.error(e)
 
 
-create_diary_index()
