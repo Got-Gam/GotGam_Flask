@@ -11,7 +11,7 @@ load_dotenv()
 
 elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 
-index_body = {
+tour_index_body = {
     "settings": {
         "analysis": {
             "tokenizer": {
@@ -117,6 +117,7 @@ index_body = {
         }
     }
 }
+
 # 위의 createdtime, modifiedtime의 format은 넣을 데이터의 현재 포멧을 말하는 것이다.
 # 따라서 현재 JSON파일에 들어가있는 포멧과 일치시켜야 한다
 def send_to_elastic():
@@ -128,11 +129,11 @@ def send_to_elastic():
 
     try:
         if not es.indices.exists(index=index_name):
-            es.indices.create(index=index_name, body=index_body)
+            es.indices.create(index=index_name, body=tour_index_body)
         else:
             print("Index already exists")
 
-        with open("../tour_info.json", "r", encoding='utf-8') as f:
+        with open("../snake_case_tour_info.json", "r", encoding='utf-8') as f:
             tour_data = json.load(f)
 
             for item in tour_data:  # tour_data를 순회하며 각 item (도큐먼트) 처리
