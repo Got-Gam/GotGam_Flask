@@ -96,27 +96,28 @@ tour_index_body = {
                     }
                 }
             },
-            "areacode": {"type": "keyword"},
-            "sigungucode": {"type": "keyword"},
+            "area_code": {"type": "keyword"},
+            "sigungu_code": {"type": "keyword"},
             "zipcode": {"type": "keyword"},
-            "contentid": {"type": "keyword"},
-            "contenttypeid": {"type": "keyword"},
+            "content_id": {"type": "keyword"},
+            "content_type_id": {"type": "keyword"},
             "cat1": {"type": "keyword"},
             "cat2": {"type": "keyword"},
             "cat3": {"type": "keyword"},
-            "createdtime": {"type": "date", "format": "basic_date_time_no_millis"},
-            "modifiedtime": {"type": "date", "format": "basic_date_time_no_millis"},
-            "firstimage": {"type": "keyword"},
-            "firstimage2": {"type": "keyword"},
-            "booktour": {"type": "keyword"},
-            "cpyrhtDivCd": {"type": "keyword"},
+            "created_time": {"type": "date", "format": "date_hour_minute_second"},
+            "modified_time": {"type": "date", "format": "date_hour_minute_second"},
+            "first_image": {"type": "keyword"},
+            "first_image2": {"type": "keyword"},
+            "book_tour": {"type": "keyword"},
+            "cpyrht_div_cd": {"type": "keyword"},
             "tel": {"type": "keyword"},
-            "mapx": {"type": "float"},
-            "mapy": {"type": "float"},
-            "mlevel": {"type": "float"}
+            "map_x": {"type": "float"},
+            "map_y": {"type": "float"},
+            "m_level": {"type": "float"}
         }
     }
 }
+
 
 # 위의 createdtime, modifiedtime의 format은 넣을 데이터의 현재 포멧을 말하는 것이다.
 # 따라서 현재 JSON파일에 들어가있는 포멧과 일치시켜야 한다
@@ -137,17 +138,15 @@ def send_to_elastic(file_path):
             tour_data = json.load(f)
 
             for item in tour_data:  # tour_data를 순회하며 각 item (도큐먼트) 처리
-                # 날짜 형식 변환 (createdtime)
-                created_time_str = item.get("createdtime")
+                created_time_str = item.get("created_time")
                 if created_time_str:  # createdtime 값이 있는 경우에만 변환
                     created_datetime = datetime.strptime(created_time_str, "%Y%m%d%H%M%S")  # 기존 형식 파싱
-                    item["createdtime"] = created_datetime.strftime("%Y%m%dT%H%M%S+0900")  # 새 형식으로 변환 및 저장
+                    item["created_time"] = created_datetime.strftime("%Y-%m-%dT%H:%M:%S")  # 새 형식으로 변환 및 저장
 
-                # 날짜 형식 변환 (modifiedtime)
-                modified_time_str = item.get("modifiedtime")
+                modified_time_str = item.get("modified_time")
                 if modified_time_str:  # modifiedtime 값이 있는 경우에만 변환
                     modified_datetime = datetime.strptime(modified_time_str, "%Y%m%d%H%M%S")  # 기존 형식 파싱
-                    item["modifiedtime"] = modified_datetime.strftime("%Y%m%dT%H%M%S+0900")  # 새 형식으로 변환 및 저장
+                    item["modified_time"] = modified_datetime.strftime("%Y-%m-%dT%H:%M:%S")  # 새 형식으로 변환 및 저장
 
             for i in range(0, len(tour_data), batch_size):
                 batch = tour_data[i:i + batch_size]
