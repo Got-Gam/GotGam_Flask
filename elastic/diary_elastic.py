@@ -66,6 +66,7 @@ diary_index_body = {
     },
     "mappings": {
         "properties": {
+            "diary_id": {"type": "keyword"},
             "title": {
                 "type": "text",
                 "analyzer": "nori_analyzer_with_stopwords",
@@ -106,6 +107,7 @@ diary_index_body = {
     }
 }
 
+
 def create_diary_index():
     try:
         es = Elasticsearch("http://localhost:9200", basic_auth=('elastic', elastic_pwd))
@@ -119,3 +121,4 @@ def create_diary_index():
         logging.error(e)
 
 
+create_diary_index()
