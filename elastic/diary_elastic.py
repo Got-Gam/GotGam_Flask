@@ -104,7 +104,8 @@ diary_index_body = {
             "start_date": {"type": "date", "format": "basic_date"},
             "end_date": {"type": "date", "format": "basic_date"},
             "tags": {"type": "keyword"},
-            "total_cost": {"type": "float"}
+            "total_cost": {"type": "float"},
+            "is_public": {"type": "boolean"},
         }
     }
 }
@@ -122,5 +123,6 @@ def create_diary_index():
     except Exception as e:
         logging.error(e)
 
-delete_elasticsearch_index("diary") # 다이어리 인덱스 초기화
+
+delete_elasticsearch_index("diary")  # 다이어리 인덱스 초기화
 create_diary_index()
