@@ -5,6 +5,8 @@ import os
 import logging
 from datetime import datetime
 
+from elastic.delete_elastic_index import delete_elasticsearch_index
+
 logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
@@ -120,5 +122,5 @@ def create_diary_index():
     except Exception as e:
         logging.error(e)
 
-
+delete_elasticsearch_index("diary") # 다이어리 인덱스 초기화
 create_diary_index()
