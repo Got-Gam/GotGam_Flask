@@ -113,7 +113,10 @@ tour_index_body = {
             "tel": {"type": "keyword"},
             "map_x": {"type": "float"},
             "map_y": {"type": "float"},
-            "m_level": {"type": "float"}
+            "m_level": {"type": "float"},
+            "review_count": {"type": "float"},
+            "rating": {"type": "double"},
+            "bookmark_count": {"type": "float"},
         }
     }
 }
@@ -174,6 +177,3 @@ def send_to_elastic(file_path):
         else:
             logging.error(f'오류 메시지 발생 : {e}')
             logging.error(type(e))
-
-
-
