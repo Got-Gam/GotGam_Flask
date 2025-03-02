@@ -100,7 +100,7 @@ diary_index_body = {
                 }
             },
             "member_id": {"type": "keyword"},
-            "created_time": {"type": "date", "format": "basic_date_time_no_millis"},
+            "created_time": {"type": "date", "format": "date_hour_minute_second_millis"},
             "start_date": {"type": "date", "format": "basic_date"},
             "end_date": {"type": "date", "format": "basic_date"},
             "tags": {"type": "keyword"},
