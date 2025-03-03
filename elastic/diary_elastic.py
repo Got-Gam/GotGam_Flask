@@ -76,6 +76,9 @@ diary_index_body = {
                     "ngram": {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
+                    },
+                    "keyword" :{
+                        "type": "keyword",
                     }
                 }
             },
