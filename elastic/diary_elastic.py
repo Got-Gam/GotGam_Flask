@@ -77,7 +77,7 @@ diary_index_body = {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
                     },
-                    "keyword" :{
+                    "keyword": {
                         "type": "keyword",
                     }
                 }
@@ -109,6 +109,7 @@ diary_index_body = {
             "tags": {"type": "keyword"},
             "total_cost": {"type": "float"},
             "is_public": {"type": "boolean"},
+            "bookmark_count": {"type": "float"},
         }
     }
 }

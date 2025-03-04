@@ -14,26 +14,39 @@ elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 tour_index_body = {
     "settings": {
         "analysis": {
+            # 노말라이저 추가
+            "normalizer": {
+                "korean_collation": {
+                    "type": "icu_normalizer",
+                    "name": "nfkc_cf"
+                }
+            },
             "tokenizer": {
                 "nori_user_dict_tokenizer": {
+                    # 한국어 처리를 위한 Nori 토크나이저
                     "type": "nori_tokenizer",
+                    # 복합어를 혼합모드로 분리
                     "decompound_mode": "mixed",
+                    # 구두점을 버리지 않고 유지
                     "discard_punctuation": "false"
                 }
             },
             "filter": {
-                "korean_stop": {
-                    "type": "stop",
-                    "stopwords_path": "analysis/stopwords/korean_stopwords.txt"
-                },
-                "nori_filter": {
-                    "type": "nori_part_of_speech",
-                    "stoptags": [
-                        "E", "IC", "J", "MAG", "MAJ", "MM", "SP", "SSC", "SSO", "SC", "SE", "XPN", "XSA", "XSN",
-                        "XSV",
-                        "UNA", "NA", "VSV", "NP"
-                    ]
-                },
+                # 관광지 이름은 하나의 고유명사이기 때문에 불용어 제외
+                # "korean_stop": {
+                #     "type": "stop",
+                #     "stopwords_path": "analysis/stopwords/korean_stopwords.txt"
+                # },
+                # nori_part_of_speech : 특정 품사를 제거하는 필터, 이것 또한 고유명사에 불필요
+                # "nori_filter": {
+                #     "type": "nori_part_of_speech",
+                #     "stoptags": [
+                #         "E", "IC", "J", "MAG", "MAJ", "MM", "SP", "SSC", "SSO", "SC", "SE", "XPN", "XSA", "XSN",
+                #         "XSV",
+                #         "UNA", "NA", "VSV", "NP"
+                #     ]
+                # },
+                # ngram 필터 : 텍스트를 2~3글자 단위로 분리
                 "ngram_filter": {
                     "type": "ngram",
                     "min_gram": 2,
@@ -46,16 +59,24 @@ tour_index_body = {
                 },
             },
             "analyzer": {
-                "nori_analyzer_with_stopwords": {
+                # 불용어, 품사가 필터가 불필요하기 때문에 분석기 새로 설정
+                # "nori_analyzer_with_stopwords": {
+                #     "type": "custom",
+                #     "tokenizer": "nori_user_dict_tokenizer",
+                #     "filter": ["nori_readingform", "korean_stop", "nori_filter", "trim"]
+                # },
+                # 한국어 텍스트 분석기                
+                "nori_analyzer_simple": {
                     "type": "custom",
                     "tokenizer": "nori_user_dict_tokenizer",
-                    "filter": ["nori_readingform", "korean_stop", "nori_filter", "trim"]
+                    "filter": ["nori_readingform", "trim"] # 불용어 / 품사 필터 제거
                 },
                 "nori_ngram_analyzer": {
                     "type": "custom",
                     "tokenizer": "nori_user_dict_tokenizer",
                     "filter": ["nori_readingform", "ngram_filter", "trim"]
                 },
+                # 영어로 되어있는 관광지 존재
                 "english_ngram_analyzer": {
                     "type": "custom",
                     "tokenizer": "standard",
@@ -68,7 +89,7 @@ tour_index_body = {
         "properties": {
             "addr1": {
                 "type": "text",
-                "analyzer": "nori_analyzer_with_stopwords",
+                "analyzer": "nori_analyzer_simple",
                 "fields": {
                     "ngram": {
                         "type": "text",
@@ -78,7 +99,7 @@ tour_index_body = {
             },
             "addr2": {
                 "type": "text",
-                "analyzer": "nori_analyzer_with_stopwords",
+                "analyzer": "nori_analyzer_simple",
                 "fields": {
                     "ngram": {
                         "type": "text",
@@ -88,7 +109,7 @@ tour_index_body = {
             },
             "title": {
                 "type": "text",
-                "analyzer": "nori_analyzer_with_stopwords",
+                "analyzer": "nori_analyzer_simple",
                 "fields": {
                     "ngram": {
                         "type": "text",
@@ -96,12 +117,17 @@ tour_index_body = {
                     },
                     "keyword": {
                         "type": "keyword",
+                    },
+                    # 한글 우선 정렬
+                    "korean_sorted": {
+                        "type": "keyword",
+                        "normalizer": "korean_collation"
                     }
                 }
             },
             "area_code": {"type": "keyword"},
             "sigungu_code": {"type": "keyword"},
-            "zipcode": {"type": "keyword"},
+            # "zipcode": {"type": "keyword"}, # 우편번호 - 제거
             "content_id": {"type": "keyword"},
             "content_type_id": {"type": "keyword"},
             "cat1": {"type": "keyword"},
@@ -111,12 +137,12 @@ tour_index_body = {
             "modified_time": {"type": "date", "format": "date_hour_minute_second"},
             "first_image": {"type": "keyword"},
             "first_image2": {"type": "keyword"},
-            "book_tour": {"type": "keyword"},
-            "cpyrht_div_cd": {"type": "keyword"},
+            # "book_tour": {"type": "keyword"}, # 교과서정보 - 제거
+            # "cpyrht_div_cd": {"type": "keyword"}, # 저작권 관련 - 제거
             "tel": {"type": "keyword"},
             "map_x": {"type": "float"},
             "map_y": {"type": "float"},
-            "m_level": {"type": "float"},
+            # "m_level": {"type": "float"}, # 지도 레벨 - 제거
             "review_count": {"type": "float"},
             "rating": {"type": "double"},
             "bookmark_count": {"type": "float"},
