@@ -14,23 +14,6 @@ elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 tour_index_body = {
     "settings": {
         "analysis": {
-            # 노말라이저 추가
-            "normalizer": {
-                "korean_collation": {
-                    "type": "icu_normalizer",
-                    "name": "nfkc_cf"
-                }
-            },
-            "tokenizer": {
-                "nori_user_dict_tokenizer": {
-                    # 한국어 처리를 위한 Nori 토크나이저
-                    "type": "nori_tokenizer",
-                    # 복합어를 혼합모드로 분리
-                    "decompound_mode": "mixed",
-                    # 구두점을 버리지 않고 유지
-                    "discard_punctuation": "false"
-                }
-            },
             "filter": {
                 # 관광지 이름은 하나의 고유명사이기 때문에 불용어 제외
                 # "korean_stop": {
@@ -56,7 +39,17 @@ tour_index_body = {
                     "type": "ngram",
                     "min_gram": 2,
                     "max_gram": 3
-                },
+                }
+            },
+            "tokenizer": {
+                "nori_user_dict_tokenizer": {
+                    # 한국어 처리를 위한 Nori 토크나이저
+                    "type": "nori_tokenizer",
+                    # 복합어를 혼합모드로 분리
+                    "decompound_mode": "mixed",
+                    # 구두점을 버리지 않고 유지
+                    "discard_punctuation": "false"
+                }
             },
             "analyzer": {
                 # 불용어, 품사가 필터가 불필요하기 때문에 분석기 새로 설정
@@ -69,7 +62,7 @@ tour_index_body = {
                 "nori_analyzer_simple": {
                     "type": "custom",
                     "tokenizer": "nori_user_dict_tokenizer",
-                    "filter": ["nori_readingform", "trim"] # 불용어 / 품사 필터 제거
+                    "filter": ["nori_readingform", "trim"]  # 불용어 / 품사 필터 제거
                 },
                 "nori_ngram_analyzer": {
                     "type": "custom",
@@ -87,6 +80,23 @@ tour_index_body = {
     },
     "mappings": {
         "properties": {
+            "title": {
+                "type": "text",
+                "analyzer": "nori_analyzer_simple",
+                "fields": {
+                    "ngram": {
+                        "type": "text",
+                        "analyzer": "nori_ngram_analyzer"
+                    },
+                    # 정렬 기준 직접 설정
+                    "korean_sorted": {
+                        "type": "icu_collation_keyword",
+                        "language": "ko",
+                        "country": "KR",
+                        "strength": "primary"
+                    }
+                }
+            },
             "addr1": {
                 "type": "text",
                 "analyzer": "nori_analyzer_simple",
@@ -104,24 +114,6 @@ tour_index_body = {
                     "ngram": {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
-                    }
-                }
-            },
-            "title": {
-                "type": "text",
-                "analyzer": "nori_analyzer_simple",
-                "fields": {
-                    "ngram": {
-                        "type": "text",
-                        "analyzer": "nori_ngram_analyzer"
-                    },
-                    "keyword": {
-                        "type": "keyword",
-                    },
-                    # 한글 우선 정렬
-                    "korean_sorted": {
-                        "type": "keyword",
-                        "normalizer": "korean_collation"
                     }
                 }
             },

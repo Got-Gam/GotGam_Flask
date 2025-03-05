@@ -76,9 +76,12 @@ diary_index_body = {
                     "ngram": {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
-                    },
-                    "keyword": {
-                        "type": "keyword",
+                    },# 정렬 기준 직접 설정
+                    "korean_sorted": {
+                        "type": "icu_collation_keyword",
+                        "language": "ko",
+                        "country": "KR",
+                        "strength": "primary"
                     }
                 }
             },
@@ -99,7 +102,7 @@ diary_index_body = {
                     "ngram": {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
-                    }
+                    },
                 }
             },
             "member_id": {"type": "keyword"},
