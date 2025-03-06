@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from datetime import datetime
+import re
 
 logging.basicConfig(level=logging.INFO)
 
@@ -14,19 +15,6 @@ elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 tour_index_body = {
     "settings": {
         "analysis": {
-            "char_filter": {
-                "remove_special": {
-                    "type": "pattern_replace",
-                    "pattern": "[^가-힣a-zA-Z0-9]",  # 특수문자 제거
-                    "replacement": ""
-                }
-            },
-            "normalizer": {
-                "clean_korean": {
-                    "type": "custom",
-                    "char_filter": ["remove_special"]
-                }
-            },
             "tokenizer": {
                 "nori_user_dict_tokenizer": {
                     "type": "nori_tokenizer",
@@ -74,16 +62,6 @@ tour_index_body = {
                     "ngram": {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
-                    },
-                    "clean": {
-                        "type": "keyword",
-                        "normalizer": "clean_korean"
-                    },
-                    "korean_sorted": {
-                        "type": "icu_collation_keyword",
-                        "language": "ko",
-                        "country": "KR",
-                        "strength": "tertiary"
                     }
                 }
             },
@@ -123,7 +101,13 @@ tour_index_body = {
             "map_y": {"type": "float"},
             "review_count": {"type": "float"},
             "rating": {"type": "double"},
-            "bookmark_count": {"type": "float"}
+            "bookmark_count": {"type": "float"},
+            "title_sort": {
+                "type": "icu_collation_keyword",
+                "language": "ko",
+                "country": "KR",
+                "strength": "primary"
+            },
         }
     }
 }
@@ -157,6 +141,10 @@ def send_to_elastic(file_path):
                 if modified_time_str:  # modifiedtime 값이 있는 경우에만 변환
                     modified_datetime = datetime.strptime(modified_time_str, "%Y%m%d%H%M%S")  # 기존 형식 파싱
                     item["modified_time"] = modified_datetime.strftime("%Y-%m-%dT%H:%M:%S")  # 새 형식으로 변환 및 저장
+
+                title = item.get("title", "")
+                clean_title = re.sub(r'[^가-힣a-zA-Z0-9]', '', title)  # 특수문자 제거
+                item["title_sort"] = clean_title if clean_title else title  # 빈 문자열 방지
 
             for i in range(0, len(tour_data), batch_size):
                 batch = tour_data[i:i + batch_size]
