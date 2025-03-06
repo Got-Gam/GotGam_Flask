@@ -16,6 +16,19 @@ elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 diary_index_body = {
     "settings": {
         "analysis": {
+            "char_filter": {
+                "remove_special": {
+                    "type": "pattern_replace",
+                    "pattern": "[^가-힣a-zA-Z0-9]",  # 한글, 영어, 숫자 외 제거
+                    "replacement": ""
+                }
+            },
+            "normalizer": {
+                "clean_korean": {
+                    "type": "custom",
+                    "char_filter": ["remove_special"]
+                }
+            },
             "tokenizer": {
                 "nori_user_dict_tokenizer": {
                     "type": "nori_tokenizer",
@@ -76,12 +89,16 @@ diary_index_body = {
                     "ngram": {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
-                    },# 정렬 기준 직접 설정
+                    },
+                    "clean": {
+                        "type": "keyword",
+                        "normalizer": "clean_korean"
+                    },
                     "korean_sorted": {
                         "type": "icu_collation_keyword",
                         "language": "ko",
                         "country": "KR",
-                        "strength": "primary"
+                        "strength": "tertiary"
                     }
                 }
             },
