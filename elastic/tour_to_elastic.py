@@ -1,10 +1,11 @@
 import json
-from elasticsearch import Elasticsearch, helpers
-from dotenv import load_dotenv
-import os
 import logging
-from datetime import datetime
+import os
 import re
+from datetime import datetime
+
+from dotenv import load_dotenv
+from elasticsearch import Elasticsearch, helpers
 
 logging.basicConfig(level=logging.INFO)
 
@@ -62,6 +63,12 @@ tour_index_body = {
                     "ngram": {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
+                    },
+                    "sort": {
+                        "type": "icu_collation_keyword",
+                        "language": "ko",
+                        "country": "KR",
+                        "strength": "primary"
                     }
                 }
             },
@@ -102,15 +109,25 @@ tour_index_body = {
             "review_count": {"type": "float"},
             "rating": {"type": "double"},
             "bookmark_count": {"type": "float"},
-            "title_sort": {
-                "type": "icu_collation_keyword",
-                "language": "ko",
-                "country": "KR",
-                "strength": "primary"
-            },
+            "char_type": {"type": "byte"},
         }
     }
 }
+
+
+def determine_chat_type(title):
+    """title의 첫 글자를 기준으로 chat_type을 결정"""
+    if not title:  # title이 비어있는 경우
+        return 3  # 기본값으로 특수문자 취급
+    first_char = title[0]
+    if re.match(r'[가-힣]', first_char):
+        return 0  # 한글
+    elif re.match(r'[a-zA-Z]', first_char):
+        return 1  # 영어
+    elif re.match(r'[0-9]', first_char):
+        return 2  # 숫자
+    else:
+        return 3  # 특수문자
 
 
 # 위의 createdtime, modifiedtime의 format은 넣을 데이터의 현재 포멧을 말하는 것이다.
@@ -142,9 +159,7 @@ def send_to_elastic(file_path):
                     modified_datetime = datetime.strptime(modified_time_str, "%Y%m%d%H%M%S")  # 기존 형식 파싱
                     item["modified_time"] = modified_datetime.strftime("%Y-%m-%dT%H:%M:%S")  # 새 형식으로 변환 및 저장
 
-                title = item.get("title", "")
-                clean_title = re.sub(r'[^가-힣a-zA-Z0-9]', '', title)  # 특수문자 제거
-                item["title_sort"] = clean_title if clean_title else title  # 빈 문자열 방지
+                item['char_type'] = determine_chat_type(item.get("title", ""))
 
             for i in range(0, len(tour_data), batch_size):
                 batch = tour_data[i:i + batch_size]
