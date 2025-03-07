@@ -130,6 +130,8 @@ diary_index_body = {
             "total_cost": {"type": "float"},
             "is_public": {"type": "boolean"},
             "bookmark_count": {"type": "float"},
+            "area_code": {"type": "keyword"},
+            "sigungu_code": {"type": "keyword"},
         }
     }
 }

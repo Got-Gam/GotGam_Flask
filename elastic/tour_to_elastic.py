@@ -162,7 +162,10 @@ def send_to_elastic(file_path):
                     item["modified_time"] = modified_datetime.strftime("%Y-%m-%dT%H:%M:%S")  # 새 형식으로 변환 및 저장
 
                 item['char_type'] = determine_chat_type(item.get("title", ""))
-                item['location'] = [float(item.get("map_x", 0)), float(item.get("map_y", 0))]
+                item['location'] = {
+                    "lat": float(item.get("map_y")),  # 위도
+                    "lon": float(item.get("map_x"))  # 경도
+                }
 
             for i in range(0, len(tour_data), batch_size):
                 batch = tour_data[i:i + batch_size]
