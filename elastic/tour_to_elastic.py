@@ -112,8 +112,20 @@ tour_index_body = {
             "bookmark_count": {"type": "float"},
             "char_type": {"type": "byte"},
             "location": {"type": "geo_point"},
+            "classified_type_id": {"type": "keyword"},
         }
     }
+}
+
+# content_type_id 변환 규칙
+content_type_mapping = {
+    "12": "100",
+    "14": "100",
+    "25": "100",
+    "28": "100",
+    "38": "100",
+    "32": "200",
+    "39": "300"
 }
 
 
@@ -166,6 +178,11 @@ def send_to_elastic(file_path):
                     "lat": float(item.get("map_y")),  # 위도
                     "lon": float(item.get("map_x"))  # 경도
                 }
+
+                type_id = item.get("content_type_id")
+                if type_id in content_type_mapping:
+                    item['classified_type_id'] = content_type_mapping[type_id]
+
 
             for i in range(0, len(tour_data), batch_size):
                 batch = tour_data[i:i + batch_size]

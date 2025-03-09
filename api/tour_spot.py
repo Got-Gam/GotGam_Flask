@@ -41,17 +41,6 @@ def get_tour():
         "map_x", "map_y", "modified_time", "sigungu_code", "tel", "title"
     }
 
-    # content_type_id 변환 규칙
-    content_type_mapping = {
-        "12": "100",
-        "14": "100",
-        "25": "100",
-        "28": "100",
-        "38": "100",
-        "32": "200",
-        "39": "300"
-    }
-
     params = {
         "MobileOS": MobileOs,
         "MobileApp": MobileApp,
@@ -103,9 +92,9 @@ def get_tour():
                     continue  # 해당 조건에 맞으면 이 항목을 제외
 
                 # content_type_id 값 변환
-                content_type_id = filtered_item.get("content_type_id")
-                if content_type_id in content_type_mapping:
-                    filtered_item["content_type_id"] = content_type_mapping[content_type_id]
+                # content_type_id = filtered_item.get("content_type_id")
+                # if content_type_id in content_type_mapping:
+                #     filtered_item["content_type_id"] = content_type_mapping[content_type_id]
 
                 items_total.append(filtered_item)
 
@@ -117,7 +106,7 @@ def get_tour():
             continue
 
     # JSON 파일로 저장
-    output_path = "D:/dev/Final_Project/Final_Flask/tour_spot_info.json"
+    output_path = "../tour_spot_info2.json"
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(items_total, f, ensure_ascii=False, indent=4)
     print(f"데이터 저장 완료: {output_path}")
