@@ -127,7 +127,7 @@ diary_index_body = {
             "start_date": {"type": "date", "format": "basic_date"},
             "end_date": {"type": "date", "format": "basic_date"},
             "tags": {"type": "keyword"},
-            "total_cost": {"type": "Integer"},
+            "total_cost": {"type": "integer"},
             "is_public": {"type": "boolean"},
             "bookmark_count": {"type": "float"},
             "area_code": {"type": "keyword"},
