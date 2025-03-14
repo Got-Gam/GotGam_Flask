@@ -149,6 +149,3 @@ def create_diary_index():
     except Exception as e:
         logging.error(e)
 
-
-delete_elasticsearch_index("diary")  # 다이어리 인덱스 초기화
-create_diary_index()
