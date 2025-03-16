@@ -15,6 +15,9 @@ elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 
 tour_index_body = {
     "settings": {
+        "index": {
+            "max_ngram_diff": 2  # 차이를 2로 설정
+        },
         "analysis": {
             "tokenizer": {
                 "nori_user_dict_tokenizer": {
@@ -27,7 +30,7 @@ tour_index_body = {
                 "ngram_filter": {
                     "type": "ngram",
                     "min_gram": 2,
-                    "max_gram": 3
+                    "max_gram": 4
                 },
                 "english_ngram_filter": {
                     "type": "ngram",
@@ -69,7 +72,7 @@ tour_index_body = {
                         "language": "ko",
                         "country": "KR",
                         "strength": "primary"
-                    }
+                    },
                 }
             },
             "addr1": {
@@ -182,7 +185,6 @@ def send_to_elastic(file_path):
                 type_id = item.get("content_type_id")
                 if type_id in content_type_mapping:
                     item['classified_type_id'] = content_type_mapping[type_id]
-
 
             for i in range(0, len(tour_data), batch_size):
                 batch = tour_data[i:i + batch_size]
