@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  flask:
+    env_file:
+      - .env
+    build:
+      context: ./flask-app
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.3"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  elasticsearch:
+    image: elasticsearch:7.17.12
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: "0.5"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  es-data:
+
+networks:
+  app-network:
+    driver: bridge
