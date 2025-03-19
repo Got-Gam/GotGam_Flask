@@ -3,11 +3,13 @@ from elastic.diary_elastic import create_diary_index
 from elastic.tour_to_elastic import send_to_elastic
 # app.py
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 from ML.recomendation import recommend_top_destinations
 import datetime
 
 app = Flask(__name__)
+CORS(app, origins="http://localhost:3000")
 
 # 스케줄러 설정
 scheduler = BackgroundScheduler()
