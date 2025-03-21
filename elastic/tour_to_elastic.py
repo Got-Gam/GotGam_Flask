@@ -150,10 +150,10 @@ def determine_chat_type(title):
 # 위의 createdtime, modifiedtime의 format은 넣을 데이터의 현재 포멧을 말하는 것이다.
 # 따라서 현재 JSON파일에 들어가있는 포멧과 일치시켜야 한다
 def send_to_elastic(file_path):
-    es = Elasticsearch("http://localhost:9200",
+    es = Elasticsearch("http://elasticsearch:9200",
                        basic_auth=('elastic', elastic_pwd))
     index_name = "tour_spots"
-    batch_size = 2000
+    batch_size = 500
     total_docs = 0
 
     try:

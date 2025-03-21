@@ -24,6 +24,9 @@ services:
       - xpack.security.enabled=true
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    build:
+      context: ./flask-app
+      dockerfile: Elastic-Dockerfile
     ports:
       - "9200:9200"
       - "9300:9300"

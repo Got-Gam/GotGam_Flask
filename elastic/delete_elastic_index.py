@@ -8,7 +8,7 @@ elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 
 def delete_elasticsearch_index(index_name):
     try:
-        es = Elasticsearch("http://localhost:9200",
+        es = Elasticsearch("http://elasticsearch:9200",
                            basic_auth=('elastic', elastic_pwd))
 
         if es.indices.exists(index=index_name):

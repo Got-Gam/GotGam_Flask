@@ -39,7 +39,7 @@ diary_index_body = {
             "filter": {
                 "korean_stop": {
                     "type": "stop",
-                    "stopwords_path": "analysis/stopwords/korean_stopwords.txt"
+                    "stopwords_path": "/usr/share/elasticsearch/config/analysis/stopwords/korean_stopwords.txt"
                 },
                 "nori_filter": {
                     "type": "nori_part_of_speech",
@@ -139,7 +139,7 @@ diary_index_body = {
 
 def create_diary_index():
     try:
-        es = Elasticsearch("http://localhost:9200", basic_auth=('elastic', elastic_pwd))
+        es = Elasticsearch("http://elasticsearch:9200", basic_auth=('elastic', elastic_pwd))
 
         if not es.indices.exists(index='diary'):
             es.indices.create(index='diary', body=diary_index_body)

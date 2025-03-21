@@ -9,7 +9,7 @@ from ML.recomendation import recommend_top_destinations
 import datetime
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:3000")
+CORS(app, origins="http://3.35.40.83")
 
 # 스케줄러 설정
 scheduler = BackgroundScheduler()

@@ -1,0 +1,13 @@
+FROM elasticsearch:7.17.12
+# 플러그인 제거 후 설치
+RUN if [ -d "/usr/share/elasticsearch/plugins/analysis-nori" ]; then \
+      elasticsearch-plugin remove analysis-nori; \
+    fi && \
+    elasticsearch-plugin install analysis-nori
+RUN if [ -d "/usr/share/elasticsearch/plugins/analysis-icu" ]; then \
+      elasticsearch-plugin remove analysis-icu; \
+    fi && \
+    elasticsearch-plugin install analysis-icu
+# stopwords 디렉토리 생성 및 파일 복사
+RUN mkdir -p /usr/share/elasticsearch/config/analysis/stopwords
+COPY korean_stopwords.txt /usr/share/elasticsearch/config/analysis/stopwords/
