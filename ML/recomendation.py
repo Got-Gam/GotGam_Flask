@@ -45,6 +45,6 @@ def recommend_top_destinations(user_input, top_n=10, threshold=0.7):
 
     recommendations = pd.DataFrame({
         'VISIT_AREA_NM': destinations['VISIT_AREA_NM'],
-        'Probability_5.0': prob_5
+        'Probability': prob_5
     })
-    return recommendations[recommendations['Probability_5.0'] >= threshold].nlargest(top_n, 'Probability_5.0')
+    return recommendations[recommendations['Probability'] >= threshold].nlargest(top_n, 'Probability')
