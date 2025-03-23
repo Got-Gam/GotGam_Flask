@@ -6,21 +6,27 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 from ML.recomendation import recommend_top_destinations
+import logging
 import datetime
 
+from elastic.update_spot import update_tour_data
+
+# 로깅 설정
+logging.basicConfig(
+    level=logging.DEBUG,  # DEBUG 이상 모두 기록
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[logging.StreamHandler()]  # 콘솔 출력
+)
+logger = logging.getLogger(__name__)
 app = Flask(__name__)
-CORS(app, origins="http://localhost:3000")
+CORS(app)
 
 # 스케줄러 설정
 scheduler = BackgroundScheduler()
 
-
-# def scheduled_task():
-#     print(f"스케줄러 실행: {datetime.datetime.now()}")
-#
-#
-# scheduler.add_job(scheduled_task, 'interval', minutes=1)  # 1분마다 실행
-# scheduler.start()
+# 스케줄링 작업 추가 (매일 새벽 3시 실행)
+scheduler.add_job(update_tour_data, 'cron', hour=3, minute=0)  # 매일 새벽 3시 실행
+scheduler.start()
 
 
 # 홈 페이지
@@ -28,12 +34,14 @@ scheduler = BackgroundScheduler()
 def index():
     return render_template('index.html')
 
+
 # 추천 API
 @app.route('/recommend', methods=['POST'])
 def get_recommendations():
     try:
         # 클라이언트에서 보낸 JSON 데이터 받기
         data = request.get_json()
+        logging.info(data)
 
         # 입력 데이터 파싱
         user_input = {
@@ -52,6 +60,7 @@ def get_recommendations():
             'TRAVEL_MISSION_INT': int(data['TRAVEL_MISSION_INT'])
         }
 
+        logging.info('추천 진입')
         # 추천 결과 생성
         recs = recommend_top_destinations(user_input, top_n=10, threshold=0.7)
 
@@ -61,6 +70,7 @@ def get_recommendations():
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
+
 
 @app.route('/server-initialize', methods=['POST'])
 def initialize():
@@ -72,6 +82,14 @@ def initialize():
         return jsonify({'status': 'success', 'message': 'Server initialized successfully'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/test', methods=['GET'])
+def test():
+    print('test')
+    logger.info("Test endpoint called")
+    return jsonify({'status': 'success'})
+
 
 # 서버 종료 시 스케줄러 정리
 def shutdown_scheduler():
