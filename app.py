@@ -7,7 +7,6 @@ from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 from ML.recomendation import recommend_top_destinations
 import logging
-import datetime
 
 from elastic.update_spot import update_tour_data
 
