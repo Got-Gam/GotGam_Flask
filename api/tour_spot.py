@@ -106,7 +106,7 @@ def get_tour():
             continue
 
     # JSON 파일로 저장
-    output_path = "../tour_spot_info2.json"
+    output_path = "../tour_spot_info.json"
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(items_total, f, ensure_ascii=False, indent=4)
     print(f"데이터 저장 완료: {output_path}")
