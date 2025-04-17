@@ -37,9 +37,7 @@
   ├── app.py               : 메인 Flask 애플리케이션으로 웹 서버와 API를 구현합니다.
   ├── new.py               : 서버 초기화 스크립트로 인덱스 재생성을 담당합니다.
   │
-  ├── tour_info.json       : 여행지 기본 정보를 포함하는 데이터 파일입니다.
-  ├── tour_spot_info.json  : 여행지 상세 정보를 포함하는 데이터 파일입니다.
-  ├── tour_spot_info2.json : 업데이트된 여행지 정보를 포함하는 데이터 파일입니다.
+  ├── tour_spot_info.json : 여행지 정보를 포함하는 데이터 파일입니다.
   │
   ├── Dockerfile           : Docker 이미지 빌드 설정 파일입니다.
   └── docker-compose-ec2.yml : Docker Compose 배포 설정 파일입니다.
