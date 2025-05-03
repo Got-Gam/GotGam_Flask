@@ -6,6 +6,8 @@ from elasticsearch import Elasticsearch
 import os
 from dotenv import load_dotenv
 
+from elastic.tour_to_elastic import generate_sort_title
+
 # 로깅 설정
 logging.basicConfig(
     level=logging.DEBUG,
@@ -19,7 +21,7 @@ load_dotenv()
 elastic_pwd = os.getenv("ELASTIC_PASSWORD")
 
 # Elasticsearch 연결
-es = Elasticsearch("http://localhost:9200", basic_auth=('elastic', elastic_pwd))
+es = Elasticsearch("http://elasticsearch:9200", basic_auth=('elastic', elastic_pwd))
 
 # API 설정
 tour_api_url = "http://apis.data.go.kr/B551011/KorService1/areaBasedSyncList1"
@@ -67,19 +69,6 @@ allowed_fields = {
     "map_x", "map_y", "modified_time", "sigungu_code", "tel", "title"
 }
 
-# title의 첫 글자를 기준으로 char_type 결정
-def determine_chat_type(title):
-    if not title:
-        return 3
-    first_char = title[0]
-    if re.match(r'[가-힣]', first_char):
-        return 0
-    elif re.match(r'[a-zA-Z]', first_char):
-        return 1
-    elif re.match(r'[0-9]', first_char):
-        return 2
-    else:
-        return 3
 
 # 스케줄링 작업 정의
 def update_tour_data():
@@ -151,7 +140,7 @@ def update_tour_data():
                         filtered_item["modified_time"] = modified_datetime.strftime("%Y-%m-%dT%H:%M:%S")
 
                     # char_type 및 location 추가
-                    filtered_item['char_type'] = determine_chat_type(filtered_item.get("title", ""))
+                    filtered_item['sort_title'] = generate_sort_title(filtered_item.get("title", ""))
                     filtered_item['location'] = {
                         "lat": float(filtered_item.get("map_y")),
                         "lon": float(filtered_item.get("map_x"))
