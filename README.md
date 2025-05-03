@@ -31,13 +31,12 @@
   │   ├── diary_elastic.py : 여행 일지 인덱스 생성 및 관리를 담당합니다.
   │   ├── tour_to_elastic.py : 여행지 데이터를 Elasticsearch에 적재합니다.
   │   ├── update_spot.py   : 여행지 정보 자동 업데이트 기능을 구현합니다.
-  │   ├── delete_elastic_index.py : Elasticsearch 인덱스 삭제 기능을 제공합니다.
-  │   └── convert_snake_case.py : 데이터 정규화를 위한 스크립트입니다.
+  │   └── delete_elastic_index.py : Elasticsearch 인덱스 삭제 기능을 제공합니다.
   │
   ├── app.py               : 메인 Flask 애플리케이션으로 웹 서버와 API를 구현합니다.
   ├── new.py               : 서버 초기화 스크립트로 인덱스 재생성을 담당합니다.
   │
-  ├── tour_spot_info.json : 여행지 정보를 포함하는 데이터 파일입니다.
+  ├── tour_spot_info.json : 업데이트된 여행지 정보를 포함하는 데이터 파일입니다.
   │
   ├── Dockerfile           : Docker 이미지 빌드 설정 파일입니다.
   └── docker-compose-ec2.yml : Docker Compose 배포 설정 파일입니다.
