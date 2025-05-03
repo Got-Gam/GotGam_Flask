@@ -66,14 +66,14 @@ tour_index_body = {
                     "ngram": {
                         "type": "text",
                         "analyzer": "nori_ngram_analyzer"
-                    },
-                    "sort": {
-                        "type": "icu_collation_keyword",
-                        "language": "ko",
-                        "country": "KR",
-                        "strength": "primary"
-                    },
+                    }
                 }
+            },
+            "sort_title": {
+                "type": "icu_collation_keyword",
+                "language": "ko",
+                "country": "KR",
+                "strength": "primary"
             },
             "addr1": {
                 "type": "text",
@@ -113,7 +113,6 @@ tour_index_body = {
             "rating": {"type": "float"},
             "avg_rating": {"type": "double"},
             "bookmark_count": {"type": "float"},
-            "char_type": {"type": "byte"},
             "location": {"type": "geo_point"},
             "classified_type_id": {"type": "keyword"},
         }
@@ -131,26 +130,25 @@ content_type_mapping = {
     "39": "300"
 }
 
-
-def determine_chat_type(title):
-    """title의 첫 글자를 기준으로 chat_type을 결정"""
-    if not title:  # title이 비어있는 경우
-        return 3  # 기본값으로 특수문자 취급
+# title의 첫 글자를 기준으로 정렬용 필드를 생성
+def generate_sort_title(title):
+    if not title:
+        return "\u200d" # 보이지 않는 유니코드 문자 추가
     first_char = title[0]
     if re.match(r'[가-힣]', first_char):
-        return 0  # 한글
+        return title
     elif re.match(r'[a-zA-Z]', first_char):
-        return 1  # 영어
+        return "\u200b" + title
     elif re.match(r'[0-9]', first_char):
-        return 2  # 숫자
+        return "\u200c" + title
     else:
-        return 3  # 특수문자
+        return "\u200d" + title
 
 
 # 위의 createdtime, modifiedtime의 format은 넣을 데이터의 현재 포멧을 말하는 것이다.
 # 따라서 현재 JSON파일에 들어가있는 포멧과 일치시켜야 한다
 def send_to_elastic(file_path):
-    es = Elasticsearch("http://localhost:9200",
+    es = Elasticsearch("http://elasticsearch:9200",
                        basic_auth=('elastic', elastic_pwd))
     index_name = "tour_spots"
     batch_size = 2000
@@ -176,7 +174,7 @@ def send_to_elastic(file_path):
                     modified_datetime = datetime.strptime(modified_time_str, "%Y%m%d%H%M%S")  # 기존 형식 파싱
                     item["modified_time"] = modified_datetime.strftime("%Y-%m-%dT%H:%M:%S")  # 새 형식으로 변환 및 저장
 
-                item['char_type'] = determine_chat_type(item.get("title", ""))
+                item['sort_title'] = generate_sort_title(item.get("title", ""))
                 item['location'] = {
                     "lat": float(item.get("map_y")),  # 위도
                     "lon": float(item.get("map_x"))  # 경도
